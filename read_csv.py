@@ -29,17 +29,17 @@ def test_data(model):
 	input_layer = df2.as_matrix()
 	W1 = model['W1']
 	W2 = model['W2']
-	W3 = model['W3']
+	# W3 = model['W3']
 	b1 = model['b1']
 	b2 = model['b2']
-	b3 = model['b3']
+	# b3 = model['b3']
 	#forward propagation
 	z1 = input_layer.dot(W1) + b1
 	a1 = np.tanh(z1)
 	z2 = a1.dot(W2) + b2
-	a2 = np.tanh(z2)
-	z3 = a2.dot(W3) + b3
-	pr = np.exp(z3/1000.0)
+	# a2 = np.tanh(z2)
+	# z3 = a2.dot(W3) + b3
+	pr = np.exp(z2)
 	c = 0
 	# for x in z3:
 	# 	c += 1
@@ -64,10 +64,10 @@ def buildmodel( hidden_layers, input_layer , iterations):
 	layer2_size = 500
 	layer1_size = 500
 	input_layer_size = pixel_cnt
-	W3 = np.random.randn(layer2_size,output_layer_size)/np.sqrt(layer2_size)
-	b3 = np.zeros((1,output_layer_size))
-	W2 = np.random.randn(layer1_size,layer2_size)/np.sqrt(layer1_size)
-	b2 = np.zeros((1,layer2_size)) 	
+	# W3 = np.random.randn(layer2_size,output_layer_size)%np.sqrt(layer2_size)
+	# b3 = np.zeros((1,output_layer_size))
+	W2 = np.random.randn(layer1_size,output_layer_size)/np.sqrt(layer1_size)
+	b2 = np.zeros((1,output_layer_size)) 	
 	W1 = np.random.randn(input_layer_size,layer1_size)/np.sqrt(input_layer_size)
 	b1 = np.zeros((1,layer1_size))
 	for i in range(iterations):
@@ -76,28 +76,30 @@ def buildmodel( hidden_layers, input_layer , iterations):
 		z1 = input_layer.dot(W1) + b1
 		a1 = np.tanh(z1)
 		z2 = a1.dot(W2) + b2
-		a2 = np.tanh(z2)
-		z3 = a2.dot(W3) + b3
+		# a2 = np.tanh(z2)
+		# z3 = a2.dot(W3) + b3
 		# print z1.shape //(42000,500)
 		# print b1.shape
 		#using softmax classifier
 		#keepdims is for keeping the dimensions retained
-		pr = np.exp(z3/1000.0)
+		pr = np.exp(z2)
+		print type(pr[0][0])
 		# print pr.shape
-		prob = np.exp(z3/1000.0)/np.sum(pr,axis=1,keepdims=True)
+		prob = np.exp(z2)/np.sum(pr,axis=1,keepdims=True)
 
 		#now apply backpropagation algorithm
 		delta4 = prob
 		print "Iteration " + str(i) 
-		delta4[range(train_size),output_layer_size-1]-=1
-		# print delta4.shape
-		dlW3 = (a2.T).dot(delta4)
-		dlB3 = np.sum(delta4,axis = 0 , keepdims = True)
+		# delta4[range(train_size),output]-=1
+		# # print delta4.shape
+		# dlW3 = (a2.T).dot(delta4)
+		# dlB3 = np.sum(delta4,axis = 0 , keepdims = True)
 		# print delta4.shape
 		# print a2.shape
 		# print (W3).shape
 		# note that * and dot are different
-		delta3 = (delta4.dot(W3.T))*(1 - np.power(a2,2))
+		delta3 = prob
+		delta3[range(train_size),output]-=1
 		dlW2 = (a1.T).dot(delta3)
 		dlB2 = np.sum(delta3,axis=0 ,keepdims = True)
 
@@ -107,17 +109,17 @@ def buildmodel( hidden_layers, input_layer , iterations):
 
 		dlW1 += lmbda*W1
 		dlW2 += lmbda*W2
-		dlW3 += lmbda*W3
+		# dlW3 += lmbda*W3
 
 		W1 -= gr_descent*dlW1
 		W2 -= gr_descent*dlW2
-		W3 -= gr_descent*dlW3
+		# W3 -= gr_descent*dlW3
 		b1 -= gr_descent*dlB1
 		b2 -= gr_descent*dlB2
-		b3 -= gr_descent*dlB3
+		# b3 -= gr_descent*dlB3
 
 		
-	model = {'W1':W1 , 'W2':W2 , 'W3':W3 , 'b1':b1 , 'b2':b2 , 'b3':b3 }
+	model = {'W1':W1 , 'W2':W2 , 'b1':b1 , 'b2':b2 }
 	return model
 
 
@@ -137,5 +139,5 @@ def buildmodel( hidden_layers, input_layer , iterations):
 
 
 
-model = buildmodel(2,train_data,10)
+model = buildmodel(2,train_data,1)
 ar = test_data(model) 
