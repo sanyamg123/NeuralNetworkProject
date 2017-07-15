@@ -6,8 +6,8 @@ import bigfloat
 #Reading a csv file
 df = pd.read_csv("train.csv")
 output = np.array(df['label'])
-gr_descent = 0.0001
-lmbda = 0.0001
+gr_descent = 0.01
+lmbda = 0.01
 row,col = df.shape
 train_size = row
 pixel_cnt = col - 1
@@ -39,7 +39,9 @@ def test_data(model):
 	z2 = a1.dot(W2) + b2
 	a2 = np.tanh(z2)
 	z3 = a2.dot(W3) + b3
-	pr = np.exp(z3/1000.0)
+	a = np.absolute(z3);
+	z3 = z3/np.sum(a,axis=1,keepdims = True)
+	pr = np.exp(z3)
 	c = 0
 	# for x in z3:
 	# 	c += 1
@@ -64,8 +66,8 @@ def buildmodel( hidden_layers, input_layer , iterations):
 	layer2_size = 500
 	layer1_size = 500
 	input_layer_size = pixel_cnt
-	W3 = np.random.randn(layer2_size,output_layer_size)/np.sqrt(layer2_size)
-	b3 = np.zeros((1,output_layer_size))
+	W3 = np.random.randn(layer2_size,output_layer_size)/np.sqrt(layer2_size) 
+	b3 = np.zeros((1,output_layer_size)) 
 	W2 = np.random.randn(layer1_size,layer2_size)/np.sqrt(layer1_size)
 	b2 = np.zeros((1,layer2_size)) 	
 	W1 = np.random.randn(input_layer_size,layer1_size)/np.sqrt(input_layer_size)
@@ -82,10 +84,12 @@ def buildmodel( hidden_layers, input_layer , iterations):
 		# print b1.shape
 		#using softmax classifier
 		#keepdims is for keeping the dimensions retained
-		pr = np.exp(z3/1000.0)
+		a = np.absolute(z3);
+		z3 = z3/np.sum(a,axis = 1 , keepdims = True)
+		pr = np.exp(z3)
+		div = (np.sum(pr,axis=1,keepdims = True))
 		# print pr.shape
-		prob = np.exp(z3/1000.0)/np.sum(pr,axis=1,keepdims=True)
-
+		prob = pr/div
 		#now apply backpropagation algorithm
 		delta4 = prob
 		print "Iteration " + str(i) 
@@ -97,11 +101,12 @@ def buildmodel( hidden_layers, input_layer , iterations):
 		# print a2.shape
 		# print (W3).shape
 		# note that * and dot are different
+
 		delta3 = (delta4.dot(W3.T))*(1 - np.power(a2,2))
 		dlW2 = (a1.T).dot(delta3)
 		dlB2 = np.sum(delta3,axis=0 ,keepdims = True)
 
-		delta2 = (delta3.dot(W2.T))*(1-np.power(a1,2))
+		delta2 = (delta3.dot(W2.T))*(1 - np.power(a2,2))
 		dlW1 = (input_layer.T).dot(delta2)
 		dlB1 = np.sum(delta2,axis=0 ,keepdims = True)
 
@@ -115,6 +120,8 @@ def buildmodel( hidden_layers, input_layer , iterations):
 		b1 -= gr_descent*dlB1
 		b2 -= gr_descent*dlB2
 		b3 -= gr_descent*dlB3
+
+		print W1
 
 		
 	model = {'W1':W1 , 'W2':W2 , 'W3':W3 , 'b1':b1 , 'b2':b2 , 'b3':b3 }
