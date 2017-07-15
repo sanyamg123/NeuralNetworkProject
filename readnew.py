@@ -55,9 +55,9 @@ def test_data(model):
 	# row,col = input_layer.shape
 	# sh = (2,row)
 	# ab = [(i for i in range(row) ) for j in range(2) ]
-	df3 = pd.read_csv("kagglesubmit.csv")
+	# df3 = pd.read_csv("kagglesubmit.csv")
 	prob = pr/div
-	df3['Label']= np.argmax(prob,axis=1);
+	# df3['Label']= np.argmax(prob,axis=1);
 	np.savetxt("outputkaggle.csv", np.argmax(prob,axis=1) , delimiter=",")
 
 
@@ -67,8 +67,8 @@ def buildmodel( hidden_layers, input_layer , iterations):
 	print output_layer_size
 	#shape of output will be (train_size,output_layer_size)
 	hidden_layers = 2
-	layer2_size = 1000
-	layer1_size = 1000
+	layer2_size = 500
+	layer1_size = 500
 	input_layer_size = pixel_cnt
 	W3 = np.random.randn(layer2_size,output_layer_size)/np.sqrt(layer2_size) 
 	b3 = np.zeros((1,output_layer_size)) 
@@ -125,7 +125,6 @@ def buildmodel( hidden_layers, input_layer , iterations):
 		b2 += -gr_descent*dlB2
 		b3 += -gr_descent*dlB3
 
-		print W1
 
 		
 	model = {'W1':W1 , 'W2':W2 , 'W3':W3 , 'b1':b1 , 'b2':b2 , 'b3':b3 }
@@ -148,6 +147,6 @@ def buildmodel( hidden_layers, input_layer , iterations):
 
 
 
-model = buildmodel(2,train_data,10)
+model = buildmodel(2,train_data,100)
 print model['W1'];
 test_data(model)
